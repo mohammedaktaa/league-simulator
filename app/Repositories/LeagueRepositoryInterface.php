@@ -11,6 +11,8 @@ interface LeagueRepositoryInterface extends RepositoryInterface
 {
     public function saveLeagueSchedule(League $league, Collection $schedule);
 
-    public function getLeagueSchedule(League $league);
+    public function getLeagueSchedule(League $league): Collection;
+
+    public function updateState(League $league, Collection $schedule);
 
 }

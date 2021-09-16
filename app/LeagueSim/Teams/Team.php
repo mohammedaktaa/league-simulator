@@ -7,7 +7,7 @@ namespace App\LeagueSim\Teams;
 abstract class Team
 {
     protected string $name;
-    protected int $cooperationFactor, $talentCount;
+    protected int $id, $cooperationFactor, $talentCount;
 
     public function calculateStrength()
     {
@@ -17,5 +17,13 @@ abstract class Team
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 }

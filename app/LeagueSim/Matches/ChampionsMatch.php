@@ -8,12 +8,13 @@ use App\LeagueSim\Teams\ChampionsTeam;
 
 class ChampionsMatch extends Match
 {
-    public function __construct(ChampionsTeam $hostTeam, ChampionsTeam $guestTeam)
+    public function __construct(ChampionsTeam $hostTeam, ChampionsTeam $guestTeam, $played = null, $id = null)
     {
         $this->description = $hostTeam->getName() . ' VS ' . $guestTeam->getName();
         $this->hostTeam = $hostTeam;
         $this->guestTeam = $guestTeam;
-        $this->played = 0;
+        $this->played = $played ?? 0;
+        $this->id = $id;
         parent::__construct();
     }
 

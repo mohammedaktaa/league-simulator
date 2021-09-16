@@ -10,4 +10,7 @@ use Illuminate\Support\Collection;
 interface WeekRepositoryInterface extends RepositoryInterface
 {
     public function saveWeekMatches(Week $week, Collection $matches);
+
+    public function updateState(\App\LeagueSim\Weeks\Week $week);
+
 }

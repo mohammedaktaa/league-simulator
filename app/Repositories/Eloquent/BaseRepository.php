@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent;
 
 
 use App\Repositories\RepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class BaseRepository implements RepositoryInterface
@@ -24,5 +25,19 @@ class BaseRepository implements RepositoryInterface
     public function find($id): ?Model
     {
         return $this->model->find($id);
+    }
+
+    public function update(Model $model, array $attributes): Model
+    {
+        $model->update($attributes);
+    }
+
+    public function insert(array $values)
+    {
+        $now = Carbon::now();
+        foreach ($values as $value) {
+            $value['created_at'] = $value['updated_at'] = $now;
+        }
+        $this->model->insert($values);
     }
 }

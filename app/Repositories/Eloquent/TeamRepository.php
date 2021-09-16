@@ -4,9 +4,10 @@
 namespace App\Repositories\Eloquent;
 
 
+use App\LeagueSim\Teams\ChampionsTeam;
 use App\Models\Team;
 use App\Repositories\TeamRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class TeamRepository extends BaseRepository implements TeamRepositoryInterface
 {
@@ -17,6 +18,16 @@ class TeamRepository extends BaseRepository implements TeamRepositoryInterface
 
     public function all(): Collection
     {
-        return $this->model->all(); // todo wrap the models in ChampionsTeam object
+        $teamsModels = $this->model->all();
+        $teams = new Collection();
+        foreach ($teamsModels as $team) {
+            $teams->add(new ChampionsTeam(
+                    $team->id, $teams->name,
+                    $team->cooperation_factor,
+                    $team->talents_count
+                )
+            );
+        }
+        return $teams;
     }
 }

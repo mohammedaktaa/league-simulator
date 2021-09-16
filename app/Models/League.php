@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class League extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['description'];
+
+    public function weeks()
+    {
+        return $this->hasMany('App\Models\Week');
+    }
 }

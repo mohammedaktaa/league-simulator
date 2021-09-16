@@ -33,8 +33,17 @@ class LeaguesController extends Controller
 
     public function show(League $league)
     {
+        $leagueObj = new ChampionsLeague(
+            $league->description,
+            $this->leagueRepository->getLeagueSchedule($league),
+            $league->id
+        );
         return response()->json([
-            'data' => $this->leagueRepository->getLeagueSchedule($league)
+            'data' => [
+                'description' => $leagueObj->getDescription(),
+                'schedule' => $leagueObj->getSchedule(),
+                'predictions' => $leagueObj->calculatePredictions()
+            ]
         ], 200);
     }
 
@@ -45,6 +54,7 @@ class LeaguesController extends Controller
 
         $leagueObj->playWeek();
 
+        $this->leagueRepository->updateState($league, $leagueSchedule);
         return response()->json([
             'data' => $this->leagueRepository->getLeagueSchedule($league)
         ], 200);
@@ -57,6 +67,7 @@ class LeaguesController extends Controller
 
         $leagueObj->playAll();
 
+        $this->leagueRepository->updateState($league, $leagueSchedule);
         return response()->json([
             'data' => $this->leagueRepository->getLeagueSchedule($league)
         ], 200);

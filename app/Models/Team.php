@@ -9,4 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 class Team extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['name', 'cooperation_factor', 'talents_count'];
 }
