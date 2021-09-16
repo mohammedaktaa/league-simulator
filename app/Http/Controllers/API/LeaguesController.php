@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLeagueRequest;
-use App\LeagueSim\Fixtures\ChampionsFixtureManager;
+use App\LeagueSim\Fixtures\FixtureManager;
 use App\LeagueSim\Leagues\ChampionsLeague;
 use App\Models\League;
 use App\Repositories\LeagueRepositoryInterface;
@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 class LeaguesController extends Controller
 {
     protected LeagueRepositoryInterface $leagueRepository;
-    protected ChampionsFixtureManager $fixtureManager;
+    protected FixtureManager $fixtureManager;
 
-    public function __construct(LeagueRepositoryInterface $leagueRepository, ChampionsFixtureManager $fixtureManager)
+    public function __construct(LeagueRepositoryInterface $leagueRepository, FixtureManager $fixtureManager)
     {
         $this->leagueRepository = $leagueRepository;
         $this->fixtureManager = $fixtureManager;
@@ -24,8 +24,6 @@ class LeaguesController extends Controller
     public function store(StoreLeagueRequest $request)
     {
         $league = $this->leagueRepository->create($request->validated());
-        $this->fixtureManager->generateFixture();
-        $this->leagueRepository->saveLeagueSchedule($league, $this->fixtureManager->getFixture());
         return response()->json([
             'message' => 'League Created Successfully',
         ], 200);
@@ -38,12 +36,22 @@ class LeaguesController extends Controller
             $this->leagueRepository->getLeagueSchedule($league),
             $league->id
         );
+        $leagueObj->calculatePredictions();
         return response()->json([
             'data' => [
                 'description' => $leagueObj->getDescription(),
                 'schedule' => $leagueObj->getSchedule(),
-                'predictions' => $leagueObj->calculatePredictions()
+                'predictions' => $leagueObj->getPredictions()
             ]
+        ], 200);
+    }
+
+    public function init(League $league)
+    {
+        $this->leagueRepository->reset($league);
+        $this->generateFixture($league);
+        return response()->json([
+            'message' => $league->description . ' has been initialized',
         ], 200);
     }
 
@@ -71,5 +79,11 @@ class LeaguesController extends Controller
         return response()->json([
             'data' => $this->leagueRepository->getLeagueSchedule($league)
         ], 200);
+    }
+
+    protected function generateFixture(League $league)
+    {
+        $this->fixtureManager->generateFixture();
+        $this->leagueRepository->saveLeagueSchedule($league, $this->fixtureManager->getFixture());
     }
 }

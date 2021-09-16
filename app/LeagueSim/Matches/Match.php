@@ -10,9 +10,8 @@ abstract class Match
 {
     protected string $description;
     protected Team $hostTeam, $guestTeam;
-    protected int $hostTeamScore, $guestTeamScore, $hostTeamPoints, $guestTeamPoints;
+    protected $id, $played, $hostTeamScore, $guestTeamScore, $hostTeamPoints, $guestTeamPoints;
     protected $hostLuckFactor, $guestLuckFactor;
-    protected $id, $played;
 
     public function __construct()
     {
@@ -34,12 +33,6 @@ abstract class Match
 
         $this->played = 1;
         $this->decideTeamsPoints();
-        $this->updateState();
-    }
-
-    protected function updateState()
-    {
-
     }
 
     protected abstract function decideTeamsPoints();
@@ -63,7 +56,7 @@ abstract class Match
     /**
      * @return int
      */
-    public function getHostTeamScore(): int
+    public function getHostTeamScore()
     {
         return $this->hostTeamScore;
     }
@@ -71,7 +64,7 @@ abstract class Match
     /**
      * @return int
      */
-    public function getGuestTeamScore(): int
+    public function getGuestTeamScore()
     {
         return $this->guestTeamScore;
     }
@@ -79,7 +72,7 @@ abstract class Match
     /**
      * @return int
      */
-    public function getHostTeamPoints(): int
+    public function getHostTeamPoints()
     {
         return $this->hostTeamPoints;
     }
@@ -87,7 +80,7 @@ abstract class Match
     /**
      * @return int
      */
-    public function getGuestTeamPoints(): int
+    public function getGuestTeamPoints()
     {
         return $this->guestTeamPoints;
     }

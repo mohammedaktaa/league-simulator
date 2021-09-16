@@ -28,36 +28,43 @@ class ChampionsFixtureManager extends FixtureManager
         foreach ($round as $index => $week) {
             $matches = [];
             foreach ($week as $match) {
-                $matches[] = new ChampionsMatch($match['home'], $match['away']);
+                $matches[] = new ChampionsMatch($match['host'], $match['guest']);
             }
             $this->weeks->add(new ChampionsWeek('Week ' . ($index + 1), $index + 1, collect($matches)));
         }
 
-        foreach ($round as $week) {
+        foreach ($round as $index => $week) {
             $matches = [];
             foreach ($week as $match) {
-                $matches[] = new ChampionsMatch($match['away'], $match['home']);
+                $matches[] = new ChampionsMatch($match['guest'], $match['host']);
             }
-            $this->weeks->add(new ChampionsWeek('Week ' . (count($round) + 1), count($round) + 1, collect($matches)));
+            $this->weeks->add(new ChampionsWeek(
+                    'Week ' . (count($round) + $index + 1),
+                    count($round) + $index + 1,
+                    collect($matches)
+                )
+            );
         }
     }
 
     protected function matchTeams(Collection $teams)
     {
         $teams = $teams->toArray();
-        $away = array_splice($teams, (count($teams) / 2));
-        $home = $teams;
+        $guests = array_splice($teams, (count($teams) / 2));
+        $hosts = $teams;
         $round = [];
-        for ($i = 0; $i < count($home) + count($away) - 1; $i++) {
-            for ($j = 0; $j < count($home); $j++) {
-                $round[$i][$j]["Home"] = $home[$j];
-                $round[$i][$j]["Away"] = $away[$j];
+        for ($i = 0; $i < count($hosts) + count($guests) - 1; $i++) {
+            for ($j = 0; $j < count($hosts); $j++) {
+                $round[$i][$j]["host"] = $hosts[$j];
+                $round[$i][$j]["guest"] = $guests[$j];
             }
-            if (count($home) + count($away) - 1 > 2) {
-                array_unshift($away, array_shift(array_splice($home, 1, 1)));
-                array_push($home, array_pop($away));
+            if (count($hosts) + count($guests) - 1 > 2) {
+                $element = array_splice($hosts, 1, 1);
+                array_unshift($guests, array_shift($element));
+                array_push($hosts, array_pop($guests));
             }
         }
+
         return $round;
     }
 }

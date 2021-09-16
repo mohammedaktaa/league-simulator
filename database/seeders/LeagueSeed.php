@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\LeagueSim\Fixtures\FixtureManager;
+use App\Models\League;
 use App\Repositories\LeagueRepositoryInterface;
 use Illuminate\Database\Seeder;
 
@@ -22,7 +24,7 @@ class LeagueSeed extends Seeder
     public function run()
     {
         $this->leagueRepository->create([
-            'ChampionsLeague 1'
+            'description' => 'ChampionsLeague 1'
         ]);
     }
 }

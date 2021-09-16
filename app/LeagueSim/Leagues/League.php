@@ -6,15 +6,18 @@ namespace App\LeagueSim\Leagues;
 
 use App\Repositories\LeagueRepositoryInterface;
 use App\Repositories\MatchRepositoryInterface;
+use App\Repositories\TeamRepositoryInterface;
 use Illuminate\Support\Collection;
 
 abstract class League
 {
     protected MatchRepositoryInterface $matchRepository;
     protected LeagueRepositoryInterface $leagueRepository;
+    protected TeamRepositoryInterface $teamRepository;
     protected string $description;
     protected Collection $schedule;
     protected $id;
+    protected array $predictions;
 
 
     public abstract function calculatePredictions();
@@ -57,5 +60,13 @@ abstract class League
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPredictions(): array
+    {
+        return $this->predictions;
     }
 }

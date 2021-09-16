@@ -61,6 +61,10 @@ class LeagueRepository extends BaseRepository implements LeagueRepositoryInterfa
                         ),
                         $match->played,
                         $match->id,
+                        $match->host_team_score,
+                        $match->host_team_points,
+                        $match->guest_team_score,
+                        $match->guest_team_points
                     )
                 );
             }
@@ -83,5 +87,11 @@ class LeagueRepository extends BaseRepository implements LeagueRepositoryInterfa
         foreach ($schedule as $week) {
             $this->weekRepository->updateState($week);
         }
+    }
+
+    public function reset(League $league)
+    {
+        $league->matches()->delete();
+        $league->weeks()->delete();
     }
 }

@@ -22,7 +22,8 @@ class TeamRepository extends BaseRepository implements TeamRepositoryInterface
         $teams = new Collection();
         foreach ($teamsModels as $team) {
             $teams->add(new ChampionsTeam(
-                    $team->id, $teams->name,
+                    $team->id,
+                    $team->name,
                     $team->cooperation_factor,
                     $team->talents_count
                 )

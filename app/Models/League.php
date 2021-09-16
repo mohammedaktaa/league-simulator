@@ -15,4 +15,9 @@ class League extends Model
     {
         return $this->hasMany('App\Models\Week');
     }
+
+    public function matches()
+    {
+        return $this->hasManyThrough('App\Models\Match', 'App\Models\Week');
+    }
 }

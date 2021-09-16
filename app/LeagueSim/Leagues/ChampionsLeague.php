@@ -16,6 +16,7 @@ class ChampionsLeague extends League
         $this->id = $id;
         $this->leagueRepository = app('\App\Repositories\LeagueRepositoryInterface');
         $this->matchRepository = app('\App\Repositories\MatchRepositoryInterface');
+        $this->teamRepository = app('\App\Repositories\TeamRepositoryInterface');
     }
 
     public function calculatePredictions()
@@ -32,12 +33,40 @@ class ChampionsLeague extends League
 
         $oddsArray = [];
 
-        foreach ($teamsIds as $teamsId) {
-            $teamMatches = $matches->fitlter(function ($match) use ($teamsId) {
-                return $match->host_team_id === $teamsId || $match->guest_team_id === $teamsId;
+        foreach ($teamsIds as $teamId) {
+            $team = $this->teamRepository->find($teamId);
+            $matchesAsHost = $matches->fitlter(function ($match) use ($teamId) {
+                return $match->host_team_id === $teamId;
             });
+            $matchesAsGuest = $matches->fitlter(function ($match) use ($teamId) {
+                return $match->guest_team_id === $teamId;
+            });
+
+            $teamPoints = $matchesAsHost->sum('host_team_points') + $matchesAsGuest->sum('guest_team_points');
+
+            $teamGoalsFor = $matchesAsHost->sum('host_team_score') + $matchesAsGuest->sum('guest_team_score');
+            $teamGoalsAgainst = $matchesAsHost->sum('guest_team_score') + $matchesAsGuest->sum('host_team_score');
+            $teamGoalDifference = $teamGoalsFor - $teamGoalsAgainst;
+
+            $oddsArray[$teamId] = [
+                'team' => $team->name,
+                'odds' => 10 * $teamPoints + $teamGoalDifference
+            ];
         }
 
+        $totalOdds = array_reduce(array_map(function ($item) {
+            return $item['odds'];
+        }, $oddsArray), function ($carry, $item) {
+            $carry *= $item;
+            return $carry;
+        });
+
+        $oddsArray = array_map(function ($item) use ($totalOdds) {
+            $item['prediction'] = round($item['odds'] / $totalOdds * 100, 2);
+            return $item;
+        }, $oddsArray);
+
+        $this->predictions = $oddsArray;
     }
 
 }

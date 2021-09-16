@@ -15,4 +15,6 @@ interface LeagueRepositoryInterface extends RepositoryInterface
 
     public function updateState(League $league, Collection $schedule);
 
+    public function reset(League $league);
+
 }
