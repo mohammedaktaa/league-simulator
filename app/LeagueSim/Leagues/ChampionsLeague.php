@@ -18,7 +18,7 @@ class ChampionsLeague extends League
         $this->matchRepository = app('\App\Repositories\MatchRepositoryInterface');
     }
 
-    public abstract function calculatePredictions()
+    public function calculatePredictions()
     {
         $league = $this->leagueRepository->find($this->getId());
         $matches = $this->matchRepository->getMatchesForLeague($league);
@@ -36,8 +36,6 @@ class ChampionsLeague extends League
             $teamMatches = $matches->fitlter(function ($match) use ($teamsId) {
                 return $match->host_team_id === $teamsId || $match->guest_team_id === $teamsId;
             });
-
-            
         }
 
     }
