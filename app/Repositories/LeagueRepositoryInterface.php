@@ -19,4 +19,6 @@ interface LeagueRepositoryInterface extends RepositoryInterface
 
     public function all();
 
+    public function getLeagueTable(League $league);
+
 }

@@ -51,7 +51,8 @@ class LeaguesController extends Controller
         $leagueObj->calculatePredictions();
         return response()->json([
             'data' => [
-                'description' => $leagueObj->getDescription(),
+                'league' => LeaguesResource::make($league),
+                'league_table' => $this->leagueRepository->getLeagueTable($league),
                 'schedule' => LeagueScheduleResource::collection($leagueObj->getSchedule()),
                 'predictions' => LeaguePredictionsResource::collection($leagueObj->getPredictions())
             ]
@@ -62,9 +63,7 @@ class LeaguesController extends Controller
     {
         $this->leagueRepository->reset($league);
         $this->generateFixture($league);
-        return response()->json([
-            'message' => $league->description . ' has been initialized',
-        ], 200);
+        return response()->json();
     }
 
     public function playWeek(League $league)
