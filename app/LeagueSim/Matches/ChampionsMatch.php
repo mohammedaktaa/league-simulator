@@ -13,13 +13,14 @@ class ChampionsMatch extends Match
         ChampionsTeam $guestTeam,
         $played = null,
         $id = null,
+        $description = null,
         $hostTeamScore = null,
         $hostTeamPoints = null,
         $guestTeamScore = null,
         $guestTeamPoints = null
     )
     {
-        $this->description = $hostTeam->getName() . ' VS ' . $guestTeam->getName();
+        $this->description = $description ?? $hostTeam->getName() . ' VS ' . $guestTeam->getName();
         $this->hostTeam = $hostTeam;
         $this->guestTeam = $guestTeam;
         $this->played = $played ?? 0;

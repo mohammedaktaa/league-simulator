@@ -30,6 +30,7 @@ class BaseRepository implements RepositoryInterface
     public function update(Model $model, array $attributes): Model
     {
         $model->update($attributes);
+        return $model;
     }
 
     public function insert(array $values)

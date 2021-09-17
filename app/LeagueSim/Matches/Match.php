@@ -8,9 +8,8 @@ use App\LeagueSim\Teams\Team;
 
 abstract class Match
 {
-    protected string $description;
     protected Team $hostTeam, $guestTeam;
-    protected $id, $played, $hostTeamScore, $guestTeamScore, $hostTeamPoints, $guestTeamPoints;
+    protected $id, $description, $played, $hostTeamScore, $guestTeamScore, $hostTeamPoints, $guestTeamPoints;
     protected $hostLuckFactor, $guestLuckFactor;
 
     public function __construct()
@@ -32,6 +31,11 @@ abstract class Match
         $this->guestTeamScore = round($guestWinProbability * $maxGoals);
 
         $this->played = 1;
+        $this->description = str_replace(
+            'VS',
+            $this->hostTeamScore . ' - ' . $this->guestTeamScore,
+            $this->description
+        );
         $this->decideTeamsPoints();
     }
 
@@ -104,7 +108,7 @@ abstract class Match
     /**
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription()
     {
         return $this->description;
     }

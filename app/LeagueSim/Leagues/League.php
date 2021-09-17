@@ -25,15 +25,19 @@ abstract class League
     public function playWeek()
     {
         $currentWeek = $this->schedule->filter(function ($week) {
-            return $week->played === 1;
-        })->sortBy('number')->last();
+            return $week->getPlayed() === 0;
+        })->first();
 
         $currentWeek->run();
     }
 
     public function playAll()
     {
-        foreach ($this->schedule as $week) {
+        $weeks = $this->schedule->filter(function ($week) {
+            return $week->getPlayed() === 0;
+        });
+
+        foreach ($weeks as $week) {
             $week->run();
         }
     }

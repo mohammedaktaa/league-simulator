@@ -14,9 +14,9 @@ class ChampionsLeague extends League
         $this->description = $description;
         $this->schedule = $schedule;
         $this->id = $id;
-        $this->leagueRepository = app('\App\Repositories\LeagueRepositoryInterface');
-        $this->matchRepository = app('\App\Repositories\MatchRepositoryInterface');
-        $this->teamRepository = app('\App\Repositories\TeamRepositoryInterface');
+        $this->leagueRepository = app('\App\Repositories\Eloquent\LeagueRepository');
+        $this->matchRepository = app('\App\Repositories\Eloquent\MatchRepository');
+        $this->teamRepository = app('\App\Repositories\Eloquent\TeamRepository');
     }
 
     public function calculatePredictions()
@@ -35,10 +35,10 @@ class ChampionsLeague extends League
 
         foreach ($teamsIds as $teamId) {
             $team = $this->teamRepository->find($teamId);
-            $matchesAsHost = $matches->fitlter(function ($match) use ($teamId) {
+            $matchesAsHost = $matches->filter(function ($match) use ($teamId) {
                 return $match->host_team_id === $teamId;
             });
-            $matchesAsGuest = $matches->fitlter(function ($match) use ($teamId) {
+            $matchesAsGuest = $matches->filter(function ($match) use ($teamId) {
                 return $match->guest_team_id === $teamId;
             });
 
@@ -53,16 +53,14 @@ class ChampionsLeague extends League
                 'odds' => 10 * $teamPoints + $teamGoalDifference
             ];
         }
-
         $totalOdds = array_reduce(array_map(function ($item) {
             return $item['odds'];
         }, $oddsArray), function ($carry, $item) {
-            $carry *= $item;
+            $carry += $item;
             return $carry;
         });
-
         $oddsArray = array_map(function ($item) use ($totalOdds) {
-            $item['prediction'] = round($item['odds'] / $totalOdds * 100, 2);
+            $item['prediction'] = $totalOdds ? round($item['odds'] / $totalOdds * 100, 2) : 0;
             return $item;
         }, $oddsArray);
 

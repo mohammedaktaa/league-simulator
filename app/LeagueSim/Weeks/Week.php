@@ -17,7 +17,10 @@ abstract class Week
 
     public function run()
     {
-        foreach ($this->matches as $match) {
+        $matches = $this->matches->filter(function ($match) {
+            return $match->getPlayed() === 0;
+        });
+        foreach ($matches as $match) {
             $match->play();
         }
 

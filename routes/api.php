@@ -18,4 +18,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('leagues', 'API\LeaguesController@index');
+Route::get('leagues/{league}', 'API\LeaguesController@show');
 Route::post('leagues/{league}/init', 'API\LeaguesController@init');
+Route::get('leagues/{league}/play_week', 'API\LeaguesController@playWeek');
+Route::get('leagues/{league}/play_all', 'API\LeaguesController@playAll');

@@ -17,4 +17,6 @@ interface LeagueRepositoryInterface extends RepositoryInterface
 
     public function reset(League $league);
 
+    public function all();
+
 }

@@ -18,13 +18,13 @@ class MatchRepository extends BaseRepository implements MatchRepositoryInterface
     public function updateState(\App\LeagueSim\Matches\Match $match)
     {
         $model = $this->find($match->getId());
-
         $this->update($model, [
             'host_team_score' => $match->getHostTeamScore(),
             'guest_team_score' => $match->getGuestTeamScore(),
             'host_team_points' => $match->getHostTeamPoints(),
             'guest_team_points' => $match->getGuestTeamPoints(),
-            'played' => $match->getPlayed()
+            'played' => $match->getPlayed(),
+            'description' => $match->getDescription()
         ]);
     }
 

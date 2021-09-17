@@ -4,6 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLeagueRequest;
+use App\Http\Resources\LeaguePredictionsResource;
+use App\Http\Resources\LeagueScheduleResource;
+use App\Http\Resources\LeaguesResource;
 use App\LeagueSim\Fixtures\FixtureManager;
 use App\LeagueSim\Leagues\ChampionsLeague;
 use App\Models\League;
@@ -21,11 +24,20 @@ class LeaguesController extends Controller
         $this->fixtureManager = $fixtureManager;
     }
 
+    public function index()
+    {
+        $leagues = $this->leagueRepository->all();
+        return response()->json([
+            'date' => LeaguesResource::collection($leagues)
+        ], 200);
+    }
+
     public function store(StoreLeagueRequest $request)
     {
         $league = $this->leagueRepository->create($request->validated());
         return response()->json([
-            'message' => 'League Created Successfully',
+            'message' => 'League created successfully',
+            'date' => LeaguesResource::make($league)
         ], 200);
     }
 
@@ -40,8 +52,8 @@ class LeaguesController extends Controller
         return response()->json([
             'data' => [
                 'description' => $leagueObj->getDescription(),
-                'schedule' => $leagueObj->getSchedule(),
-                'predictions' => $leagueObj->getPredictions()
+                'schedule' => LeagueScheduleResource::collection($leagueObj->getSchedule()),
+                'predictions' => LeaguePredictionsResource::collection($leagueObj->getPredictions())
             ]
         ], 200);
     }
@@ -63,9 +75,7 @@ class LeaguesController extends Controller
         $leagueObj->playWeek();
 
         $this->leagueRepository->updateState($league, $leagueSchedule);
-        return response()->json([
-            'data' => $this->leagueRepository->getLeagueSchedule($league)
-        ], 200);
+        return response()->json();
     }
 
     public function playAll(League $league)
@@ -76,9 +86,7 @@ class LeaguesController extends Controller
         $leagueObj->playAll();
 
         $this->leagueRepository->updateState($league, $leagueSchedule);
-        return response()->json([
-            'data' => $this->leagueRepository->getLeagueSchedule($league)
-        ], 200);
+        return response()->json();
     }
 
     protected function generateFixture(League $league)
