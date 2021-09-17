@@ -59,8 +59,8 @@ class ChampionsFixtureManager extends FixtureManager
                 $round[$i][$j]["guest"] = $guests[$j];
             }
             if (count($hosts) + count($guests) - 1 > 2) {
-                $element = array_splice($hosts, 1, 1);
-                array_unshift($guests, array_shift($element));
+                $subArr = array_splice($hosts, 1, 1);
+                array_unshift($guests, array_shift($subArr));
                 array_push($hosts, array_pop($guests));
             }
         }

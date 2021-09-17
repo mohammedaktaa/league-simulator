@@ -48,9 +48,11 @@ class ChampionsLeague extends League
             $teamGoalsAgainst = $matchesAsHost->sum('guest_team_score') + $matchesAsGuest->sum('host_team_score');
             $teamGoalDifference = $teamGoalsFor - $teamGoalsAgainst;
 
+            $odds = 10 * $teamPoints + $teamGoalDifference;
+            $odds = $odds > 0 ? $odds : 0;
             $oddsArray[$teamId] = [
                 'team' => $team->name,
-                'odds' => 10 * $teamPoints + $teamGoalDifference
+                'odds' => $odds
             ];
         }
         $totalOdds = array_reduce(array_map(function ($item) {

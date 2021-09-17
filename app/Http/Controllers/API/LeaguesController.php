@@ -7,6 +7,7 @@ use App\Http\Requests\StoreLeagueRequest;
 use App\Http\Resources\LeaguePredictionsResource;
 use App\Http\Resources\LeagueScheduleResource;
 use App\Http\Resources\LeaguesResource;
+use App\Http\Resources\LeagueTableResource;
 use App\LeagueSim\Fixtures\FixtureManager;
 use App\LeagueSim\Leagues\ChampionsLeague;
 use App\Models\League;
@@ -28,7 +29,7 @@ class LeaguesController extends Controller
     {
         $leagues = $this->leagueRepository->all();
         return response()->json([
-            'date' => LeaguesResource::collection($leagues)
+            'data' => LeaguesResource::collection($leagues)
         ], 200);
     }
 
@@ -49,10 +50,11 @@ class LeaguesController extends Controller
             $league->id
         );
         $leagueObj->calculatePredictions();
+
         return response()->json([
             'data' => [
                 'league' => LeaguesResource::make($league),
-                'league_table' => $this->leagueRepository->getLeagueTable($league),
+                'league_table' => LeagueTableResource::collection($this->leagueRepository->getLeagueTable($league)),
                 'schedule' => LeagueScheduleResource::collection($leagueObj->getSchedule()),
                 'predictions' => LeaguePredictionsResource::collection($leagueObj->getPredictions())
             ]

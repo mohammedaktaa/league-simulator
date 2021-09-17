@@ -28,7 +28,9 @@ abstract class League
             return $week->getPlayed() === 0;
         })->first();
 
-        $currentWeek->run();
+        if ($currentWeek) {
+            $currentWeek->run();
+        }
     }
 
     public function playAll()

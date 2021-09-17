@@ -47,6 +47,18 @@ class TeamSeed extends Seeder
                 'cooperation_factor' => 8,
                 'talents_count' => 2,
             ],
+            [
+                'id' => 5,
+                'name' => 'Real Madrid',
+                'cooperation_factor' => 5,
+                'talents_count' => 6,
+            ],
+            [
+                'id' => 6,
+                'name' => 'Barcelona',
+                'cooperation_factor' => 8,
+                'talents_count' => 6,
+            ],
         ];
 
         $this->teamRepository->insert($teams);

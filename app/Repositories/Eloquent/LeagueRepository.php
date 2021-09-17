@@ -105,109 +105,90 @@ class LeagueRepository extends BaseRepository implements LeagueRepositoryInterfa
 
     public function getLeagueTable(League $league)
     {
-        return Team::select('id AS team_id', 'name',
-            DB::raw('(SELECT SUM(matches.played)
-            FROM matches
+        $common = 'FROM matches
             JOIN weeks on weeks.id = matches.week_id
             JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . '
+            WHERE leagues.id = ' . $league->id;
+
+        $leagueTable = Team::select('id AS team_id', 'name',
+            DB::raw('(SELECT COUNT(*) ' . $common . '
+            AND (matches.host_team_id = team_id OR matches.guest_team_id = team_id)) AS participated'),
+
+            DB::raw('(SELECT SUM(matches.played) ' . $common . '
             AND (matches.host_team_id = team_id OR matches.guest_team_id = team_id)) AS played_matches'),
-            DB::raw('(SELECT SUM(COALESCE(matches.host_team_points, 0))
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . ' AND matches.host_team_id = team_id)
+
+            DB::raw('(SELECT SUM(COALESCE(matches.host_team_points, 0)) '
+                . $common . ' AND matches.host_team_id = team_id)
             AS points_as_host'),
-            DB::raw('(SELECT SUM(COALESCE(matches.guest_team_points, 0))
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . ' AND matches.guest_team_id = team_id)
+
+            DB::raw('(SELECT SUM(COALESCE(matches.guest_team_points, 0)) '
+                . $common . ' AND matches.guest_team_id = team_id)
             AS points_as_guest'),
-            DB::raw('(SELECT COUNT(1)
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . '
+
+            DB::raw('(SELECT COUNT(1) ' . $common . '
             AND matches.host_team_id = team_id
             AND matches.host_team_points = 3)
             AS winning_as_host'),
-            DB::raw('(SELECT COUNT(1)
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . '
+
+            DB::raw('(SELECT COUNT(1) ' . $common . '
             AND matches.guest_team_id = team_id
             AND matches.guest_team_points = 3)
             AS winning_as_guest'),
-            DB::raw('(SELECT COUNT(1)
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . '
+
+            DB::raw('(SELECT COUNT(1) ' . $common . '
             AND matches.played = 1
             AND matches.host_team_id = team_id
             AND matches.host_team_points = 0)
             AS losing_as_host'),
-            DB::raw('(SELECT COUNT(1)
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . '
+
+            DB::raw('(SELECT COUNT(1) ' . $common . '
             AND matches.played = 1
             AND matches.guest_team_id = team_id
             AND matches.guest_team_points = 0)
             AS losing_as_guest'),
-            DB::raw('(SELECT COUNT(1)
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . '
+
+            DB::raw('(SELECT COUNT(1) ' . $common . '
             AND matches.played = 1
             AND (matches.host_team_id = team_id OR matches.guest_team_id = team_id)
             AND matches.host_team_points = matches.guest_team_points)
             AS draw'),
-            DB::raw('(SELECT COALESCE(SUM(matches.host_team_score), 0)
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . '
+
+            DB::raw('(SELECT COALESCE(SUM(matches.host_team_score), 0) ' . $common . '
             AND matches.played = 1
             AND matches.host_team_id = team_id)
             AS goals_for_as_host'),
-            DB::raw('(SELECT COALESCE(SUM(matches.guest_team_score), 0)
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . '
+
+            DB::raw('(SELECT COALESCE(SUM(matches.guest_team_score), 0) ' . $common . '
             AND matches.played = 1
             AND matches.guest_team_id = team_id)
             AS goals_for_as_guest'),
-            DB::raw('(SELECT COALESCE(SUM(matches.guest_team_score), 0)
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . '
+
+            DB::raw('(SELECT COALESCE(SUM(matches.guest_team_score), 0) ' . $common . '
             AND matches.played = 1
             AND matches.host_team_id = team_id)
             AS goals_against_as_host'),
-            DB::raw('(SELECT COALESCE(SUM(matches.host_team_score), 0)
-            FROM matches
-            JOIN weeks on weeks.id = matches.week_id
-            JOIN leagues on leagues.id = weeks.league_id
-            WHERE leagues.id = ' . $league->id . '
+
+            DB::raw('(SELECT COALESCE(SUM(matches.host_team_score), 0) ' . $common . '
             AND matches.played = 1
             AND matches.guest_team_id = team_id)
             AS goals_against_as_guest')
         )
+            ->having('participated', '>', 0)
             ->get();
 
-        $league
-            ->join('weeks', 'leagues.id', '=', 'weeks.league_id')
-            ->join('matches', 'weeks.id', '=', 'matches.week_id')
-            ->join('teams AS host_team', 'host_team.id', '=', 'matches.host_team_id')
-            ->join('teams AS guest_team', 'guest_team.id', '=', 'matches.guest_team_id')
-            ->select('host_team.id as host_id', DB::raw(''))
-            ->get();
+        return $leagueTable->map(function ($team) {
+            return [
+                'team_id' => $team['team_id'],
+                'participated' => $team['participated'],
+                'name' => $team['name'],
+                'played_matches' => $team['played_matches'],
+                'points' => $team['points_as_host'] + $team['points_as_guest'],
+                'winning' => $team['winning_as_host'] + $team['winning_as_guest'],
+                'losing' => $team['losing_as_host'] + $team['losing_as_guest'],
+                'draw' => $team['draw'],
+                'goal_difference' => $team['goals_for_as_host'] + $team['goals_for_as_guest']
+                    - $team['goals_against_as_host'] - $team['goals_against_as_guest'],
+            ];
+        });
     }
 }
